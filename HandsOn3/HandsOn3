@@ -1,0 +1,296 @@
+import math
+import numpy as np #class Polynomial,.T
+
+"""
+DataSet
+DiscreteMaths
+Polynomial
+"""
+class DataSet:
+    def __init__(self):
+        print("\n\n\n\n\n_______________________________________________________________________________________________________________________________________________________\n")
+        print("\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t  DataSet")
+        print("_______________________________________________________________________________________________________________________________________________________\n")
+
+        self.dataset = [
+            {'x': 108, 'y': 95},
+            {'x': 115, 'y': 96},
+            {'x': 106, 'y': 95},
+            {'x': 97, 'y': 97},
+            {'x': 95, 'y': 93},
+            {'x': 91, 'y': 94},
+            {'x': 97, 'y': 95},
+            {'x': 83, 'y': 93},
+            {'x': 83, 'y': 92},
+            {'x': 78, 'y': 86},
+            {'x': 54, 'y': 73},
+            {'x': 67, 'y': 80},
+            {'x': 56, 'y': 65},
+            {'x': 53, 'y': 69},
+            {'x': 61, 'y': 77},
+            {'x': 115, 'y': 96},
+            {'x': 81, 'y': 87},
+            {'x': 78, 'y': 89},
+            {'x': 30, 'y': 60},
+            {'x': 45, 'y': 63},
+            {'x': 99, 'y': 95},
+            {'x': 32, 'y': 61},
+            {'x': 25, 'y': 55},
+            {'x': 28, 'y': 56},
+            {'x': 90, 'y': 94},
+            {'x': 89, 'y': 93},
+        ]
+    
+    def showDataSet(self):
+        print("\n")
+        for data in self.dataset:
+            print(f"X: {data['x']} \t Y: {data['y']}")
+
+class DiscreteMaths:
+    def __init__(self):
+        self.n = 0
+        self.sumX = 0
+        self.sumY = 0
+        self.sumX2 = 0
+        self.sumX3 = 0
+        self.sumX4 = 0
+        self.sumX5 = 0  
+        self.sumX6 = 0 
+        self.sumXY = 0
+        self.sumX2Y = 0
+        self.sumX3Y = 0
+
+    
+    def setCalcs(self, dataset):
+        self.n = len(dataset)
+        
+        for data in dataset:
+            self.sumX += data['x']
+            self.sumY += data['y']
+            self.sumX2 += math.pow(data['x'], 2)
+            self.sumX3 += math.pow(data['x'], 3)
+            self.sumX4 += math.pow(data['x'], 4)
+            self.sumXY += data['x'] * data['y']
+            self.sumX2Y += math.pow(data['x'], 2) * data['y']
+            self.sumX3Y += math.pow(data['x'], 3) * data['y']
+    
+    def showCalcs(self):
+        print("\n\n\n\n\n_______________________________________________________________________________________________________________________________________________________\n")
+        print("\t\t\t\t\t\t\t\t\t\t\t\t\t\tSUMATORIAS PARA CALCULAR LOS COEFICIENTES")
+        print("_______________________________________________________________________________________________________________________________________________________\n")
+
+        print(f"Sum X: \t\t {self.sumX}")
+        print(f"Sum Y: \t\t {self.sumY}")
+        print(f"Sum X2: \t {self.sumX2}")
+        print(f"Sum X3: \t {self.sumX3}")
+        print(f"Sum X4: \t {self.sumX4}")
+        print(f"Sum XY: \t {self.sumXY}")
+        print(f"Sum X2Y: \t {self.sumX2Y}")
+        print(f"Sum X3Y: \t {self.sumX3Y}")
+
+class Polynomial:
+    def __init__(self, calcs):
+        self.calcs = calcs
+        self.linearB = {
+            'b0': 0,
+            'b1': 0
+        }
+        self.cuadraticB = {
+            'b0': 0,
+            'b1': 0,
+            'b2': 0
+        }
+        self.cubicB = {
+            'b0': 0,
+            'b1': 0,
+            'b2': 0,
+            'b3': 0
+        }
+
+    #Transpuesta
+    def solveEcuationSystem(self):
+        """
+        Uso la transpuesta de las matrices, las deje indicadas con .T
+        Estas la estoy multiplicando por si mismas:
+            matrixLin.T @ matrixLin, matrixCuad.T @ matrixCuad, y matrixCub.T @ matrixCub
+        antes de resolver el sistema de ecuaciones lineales
+        """
+        
+        # Regresion Lineal
+        matrixLin = np.array([ #Creacion de matrices
+            [self.calcs.sumX, self.calcs.n],
+            [self.calcs.sumX2, self.calcs.sumX]
+        ])
+        vectorLin = np.array([self.calcs.sumY, self.calcs.sumXY])
+
+        # Matrices transpuesta numpy
+        resultsLin = np.linalg.solve(matrixLin.T @ matrixLin, matrixLin.T @ vectorLin)
+
+        self.linearB = {
+            'b0': resultsLin[1],
+            'b1': resultsLin[0]
+        }
+
+        # Regresion Cuadratica
+        matrixCuad = np.array([
+            [self.calcs.sumX2, self.calcs.sumX, self.calcs.n],
+            [self.calcs.sumX3, self.calcs.sumX2, self.calcs.sumX],
+            [self.calcs.sumX4, self.calcs.sumX3, self.calcs.sumX2]
+        ])
+        vectorCuad = np.array([self.calcs.sumY, self.calcs.sumXY, self.calcs.sumX2Y])
+
+        # Matrices transpuesta numpy
+        resultsCuad = np.linalg.solve(matrixCuad.T @ matrixCuad, matrixCuad.T @ vectorCuad)
+
+        self.cuadraticB = {
+            'b0': resultsCuad[2],
+            'b1': resultsCuad[1],
+            'b2': resultsCuad[0]
+        }
+
+        # Regresion Cubica
+        matrixCub = np.array([
+            [self.calcs.sumX3, self.calcs.sumX2, self.calcs.sumX, self.calcs.n],
+            [self.calcs.sumX4, self.calcs.sumX3, self.calcs.sumX2, self.calcs.sumX],
+            [self.calcs.sumX5, self.calcs.sumX4, self.calcs.sumX3, self.calcs.sumX2],
+            [self.calcs.sumX6, self.calcs.sumX5, self.calcs.sumX4, self.calcs.sumX3]
+        ])
+        vectorCub = np.array([self.calcs.sumY, self.calcs.sumXY, self.calcs.sumX2Y, self.calcs.sumX3Y])
+
+        # Matrices transpuesta numpy
+        resultsCub = np.linalg.solve(matrixCub.T @ matrixCub, matrixCub.T @ vectorCub)
+
+        self.cubicB = {
+            'b0': resultsCub[3],
+            'b1': resultsCub[2],
+            'b2': resultsCub[1],
+            'b3': resultsCub[0]
+        }
+    
+    def showRegressionEcuation(self):
+        
+        print("\n\n\n\n\n_______________________________________________________________________________________________________________________________________________________\n")
+        print("\t\t\t\t\t\t\t\t\t\t\tEcuación de regresión L, C y C en función de los coeficientes")
+        print("_______________________________________________________________________________________________________________________________________________________\n")
+
+
+
+        #La primera viene siendo la forma general de la ecuacion
+        #Despues, ahora si con los valores de entrada asignadas para cada b
+           
+    
+    
+    
+
+        print("Lineal: y = b0 + b1 * X")
+        print(f"Lineal: y = {self.linearB['b0']} + {self.linearB['b1']} * X")
+
+        print("\nCuadratica: y = b0 + b1 * X + b2 * X2")
+        print(f"Cuadratica: y = {self.cuadraticB['b0']} + {self.cuadraticB['b1']} * X + {self.cuadraticB['b2']} * X2")
+
+        print("\nCubica: y = b0 + b1 * X + b2 * X2 + b3 * X3")
+        print(f"Cubica: y = {self.cubicB['b0']} + {self.cubicB['b1']} * X + {self.cubicB['b2']} * X2 + {self.cubicB['b3']} * X3")
+    
+    def linearCoefficients(self, dataset):
+        SSR = 0
+        SST = 0
+        meanY = self.calcs.sumY / self.calcs.n
+        predY = 0
+        
+        for data in dataset:
+            predY = self.linearB['b0'] + (self.linearB['b1'] * data['x'])
+            SSR += math.pow(predY - meanY, 2)
+            SST += math.pow(data['y'] - meanY, 2)
+        
+        detCo = SSR / SST
+        corrCo = math.sqrt(detCo)
+        
+        print("\n\n\n\n\n_______________________________________________________________________________________________________________________________________________________\n")
+        print("\t\t\t\t\t\t\t\t\t\t\t\t\tCoeficientes de correlación y determinación")
+        print("_______________________________________________________________________________________________________________________________________________________\n")
+
+        
+        print("Regresion Lineal")
+        print(f"Coeficiente de correlación: \t {corrCo}")
+        print(f"Coeficiente de determinación: \t {detCo}")
+
+    def cuadraticCoefficients(self, dataset):
+        SSR = 0
+        SST = 0
+        meanY = self.calcs.sumY / self.calcs.n
+        predY = 0
+        
+        for data in dataset:
+            predY = self.cuadraticB['b0'] + (self.cuadraticB['b1'] * data['x']) + (self.cuadraticB['b2'] * math.pow(data['x'], 2))
+            SSR += math.pow(predY - meanY, 2)
+            SST += math.pow(data['y'] - meanY, 2)
+        
+        detCo = SSR / SST
+        corrCo = math.sqrt(detCo)
+        
+        print("\nRegresion Cuadratica")
+        print(f"Coeficiente de correlación: \t {corrCo}")
+        print(f"Coeficiente de determinación: \t {detCo}")
+
+    def cubicCoefficients(self, dataset):
+        SSR = 0
+        SST = 0
+        meanY = self.calcs.sumY / self.calcs.n
+        predY = 0
+        
+        for data in dataset:
+            predY = self.cubicB['b0'] + (self.cubicB['b1'] * data['x']) + (self.cubicB['b2'] * math.pow(data['x'], 2)) + (self.cubicB['b3'] * math.pow(data['x'], 3))
+            SSR += math.pow(predY - meanY, 2)
+            SST += math.pow(data['y'] - meanY, 2)
+        
+        detCo = SSR / SST
+        corrCo = math.sqrt(detCo)
+        
+        print("\nRegresion Cubica")
+        print(f"Coeficiente de correlación: \t {corrCo}")
+        print(f"Coeficiente de determinación: \t {detCo}")
+    
+    
+    
+    
+    
+        print("\n\n\n\n\n_______________________________________________________________________________________________________________________________________________________\n")
+        print("\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\tPredicciones")
+        print("_______________________________________________________________________________________________________________________________________________________\n")
+
+    def toPredict(self, x):
+        linearPred = self.linearB['b0'] + (self.linearB['b1'] * x)
+        cuadraticPred = self.cuadraticB['b0'] + (self.cuadraticB['b1'] * x) + (self.cuadraticB['b2'] * math.pow(x, 2))
+        cubicPred = self.cubicB['b0'] + (self.cubicB['b1'] * x) + (self.cubicB['b2'] * math.pow(x, 2)) + (self.cubicB['b3'] * math.pow(x, 3))
+
+
+        print("\nPrediccion de X =", x)
+        print(f"LineaL:\t\t y = {self.linearB['b0']} + {self.linearB['b1']} * {x} = \t {linearPred}")
+        print(f"Cuadratica:\t y = {self.cuadraticB['b0']} + {self.cuadraticB['b1']} * {x} + {self.cuadraticB['b2']} * {x}^2 = \t {cuadraticPred}")
+        print(f"Cubica:\t\t y = {self.cubicB['b0']} + {self.cubicB['b1']} * {x} + {self.cubicB['b2']} * {x}^2 + {self.cubicB['b3']} * {x}^3 = \t {cubicPred}")
+
+def main():
+    dataset = DataSet()
+    dataset.showDataSet()
+    
+    calcs = DiscreteMaths()
+    calcs.setCalcs(dataset.dataset)
+    calcs.showCalcs()
+    
+    poly = Polynomial(calcs)
+    poly.solveEcuationSystem()
+    poly.showRegressionEcuation()
+    poly.linearCoefficients(dataset.dataset)
+    poly.cuadraticCoefficients(dataset.dataset)
+    poly.cubicCoefficients(dataset.dataset)
+    
+    poly.toPredict(108)
+    poly.toPredict(115)
+    poly.toPredict(106)
+    poly.toPredict(97)
+    poly.toPredict(95)
+    poly.toPredict(91)
+    print("\n")
+
+if __name__ == '__main__':
+    main()
